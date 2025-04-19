@@ -13,7 +13,7 @@
     }
     #info span {
       opacity: 0;
-      transition: opacity 0.2s ease;
+      transition: opacity 1s ease; /* フェードイン時間 */
     }
     #info span.visible {
       opacity: 1;
@@ -42,19 +42,27 @@
       const spans = element.querySelectorAll("span");
       spans.forEach((span, i) => {
         setTimeout(() => {
-          // 記号をランダムに表示し、その後に本来の文字に戻す
-          let currentChar = span.textContent;
-          let interval = setInterval(() => {
-            span.textContent = getRandomSymbol(); // 記号表示
-          }, 100); // 記号が変わる速度
-
-          setTimeout(() => {
-            clearInterval(interval); // 記号アニメーションを止める
-            span.textContent = currentChar; // 最終的に本来の文字に戻す
-            span.classList.add("visible"); // 表示する
-          }, 600); // 記号表示後、元の文字に戻るタイミング
+          // フェードインで文字が表示される
+          span.classList.add("visible");
         }, i * 200); // 文字ごとの表示遅延（200msごと）
       });
+
+      setTimeout(() => {
+        spans.forEach((span, i) => {
+          let currentChar = span.textContent;
+
+          let switchCount = 0;  // 何回切り替えるかのカウント
+          let interval = setInterval(() => {
+            if (switchCount >= 5) {  // 5回切り替えたら終了
+              clearInterval(interval);
+              span.textContent = currentChar; // 元の文字に戻す
+            } else {
+              span.textContent = getRandomSymbol(); // 記号表示
+              switchCount++;
+            }
+          }, 200); // 記号が変わる速度（200msごと）
+        });
+      }, spans.length * 200); // フェードインが終わった後に記号アニメーションを開始
     }
 
     fetch("https://ipapi.co/json/")
