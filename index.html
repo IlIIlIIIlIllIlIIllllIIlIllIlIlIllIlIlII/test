@@ -2,73 +2,45 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>HELLO, HACKER</title>
+  <title>アクセス情報表示</title>
   <style>
     body {
       background-color: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 2rem;
+    }
+    h1 {
       color: #00ff00;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      margin-bottom: 1rem;
     }
-    #output {
-      font-size: 3rem;
-      letter-spacing: 2px;
-      min-height: 3rem;
-    }
-    p {
-      margin-top: 1rem;
-      font-size: 1rem;
-      opacity: 0.6;
+    .info {
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <div id="output"></div>
-  <p>タイプすると何かが始まる…</p>
+  <h1>あなたのアクセス情報</h1>
+  <div id="info">読み込み中...</div>
 
   <script>
-    const targetText = "HELLO, HACKER.";
-    const output = document.getElementById("output");
-    const charset = "!@#$%^&*()_+{}[]<>?-=/\\|~ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-    let currentIndex = 0;
-    let typing = false;
-
-    function scrambleText(index) {
-      const maxFrames = 10;
-      let frame = 0;
-
-      const interval = setInterval(() => {
-        let displayed = "";
-        for (let i = 0; i < index; i++) {
-          displayed += targetText[i];
-        }
-        for (let i = index; i < targetText.length; i++) {
-          displayed += charset.charAt(Math.floor(Math.random() * charset.length));
-        }
-        output.textContent = displayed;
-        frame++;
-
-        if (frame >= maxFrames) {
-          output.textContent = targetText.substring(0, index + 1);
-          clearInterval(interval);
-          currentIndex++;
-          typing = false;
-        }
-      }, 40);
-    }
-
-    document.addEventListener("keydown", () => {
-      if (!typing && currentIndex < targetText.length) {
-        typing = true;
-        scrambleText(currentIndex);
-      }
-    });
+    fetch("https://ipapi.co/json/")
+      .then(res => res.json())
+      .then(data => {
+        const output = `
+          <div class="info">📡 IPアドレス: ${data.ip}</div>
+          <div class="info">🌍 国: ${data.country_name} (${data.country})</div>
+          <div class="info">🏙️ 地域: ${data.region}, ${data.city}</div>
+          <div class="info">🏢 プロバイダ: ${data.org}</div>
+          <div class="info">🧭 緯度: ${data.latitude}, 経度: ${data.longitude}</div>
+          <div class="info">🕵️ User-Agent: ${navigator.userAgent}</div>
+        `;
+        document.getElementById("info").innerHTML = output;
+      })
+      .catch(err => {
+        document.getElementById("info").textContent = "取得に失敗しました。";
+        console.error(err);
+      });
   </script>
 </body>
 </html>
