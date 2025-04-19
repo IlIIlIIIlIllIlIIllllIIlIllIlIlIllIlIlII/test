@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
   <title>画像を8つ配置</title>
   <style>
     html, body {
@@ -16,19 +16,21 @@
 
     #container {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 10px; /* 画像間の間隔 */
-      width: 90vw;
-      height: 90vh;
-      margin: auto;
-      padding: 5vh 0;
+      grid-template-columns: repeat(2, 1fr);  /* 2列 */
+      grid-template-rows: repeat(4, 1fr);     /* 4行 */
+      gap: 20px; /* 画像間の間隔 */
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center; /* 横方向で中央に配置 */
+      align-items: center;     /* 縦方向で中央に配置 */
     }
 
     .cell {
       background-repeat: no-repeat;
       background-size: cover; /* 画像サイズに合わせる */
       transition: transform 0.3s;
+      position: relative;
     }
 
     .cell:hover {
@@ -54,6 +56,13 @@
     img.onload = function() {
       const { width: imgWidth, height: imgHeight } = img;  // 画像サイズ取得
 
+      // コンテナのサイズを取得し、画像のサイズを動的に調整
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+
+      // 画像サイズの計算
+      const imgSize = Math.min(containerWidth / 2 - 20, containerHeight / 4 - 20);  // 画像のサイズを調整
+
       // 画像を8つのオブジェクトに割り当てて配置
       for (let i = 0; i < images.length; i++) {
         const cell = document.createElement("div");
@@ -61,8 +70,8 @@
 
         // 各オブジェクトに画像を設定
         cell.style.backgroundImage = `url(${images[i]})`;
-        cell.style.width = `${imgWidth}px`;
-        cell.style.height = `${imgHeight}px`;
+        cell.style.width = `${imgSize}px`;
+        cell.style.height = `${imgSize}px`;
 
         // 位置調整: 2列×4行
         const row = Math.floor(i / 2) + 1;
