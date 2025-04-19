@@ -14,27 +14,61 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden;
     }
-    h1 {
-      font-size: 3.5rem;
-      animation: flicker 1s infinite alternate;
+    #output {
+      font-size: 3rem;
+      letter-spacing: 2px;
+      min-height: 3rem;
     }
     p {
-      font-size: 1.2rem;
       margin-top: 1rem;
-      opacity: 0.7;
-    }
-
-    @keyframes flicker {
-      0% { opacity: 1; }
-      50% { opacity: 0.3; }
-      100% { opacity: 1; }
+      font-size: 1rem;
+      opacity: 0.6;
     }
   </style>
 </head>
 <body>
-  <h1>HELLO, HACKER WORLD.</h1>
-  <p>Powered by GitHub Pages</p>
+  <div id="output"></div>
+  <p>タイプすると何かが始まる…</p>
+
+  <script>
+    const targetText = "HELLO, HACKER.";
+    const output = document.getElementById("output");
+    const charset = "!@#$%^&*()_+{}[]<>?-=/\\|~ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let currentIndex = 0;
+    let typing = false;
+
+    function scrambleText(index) {
+      const maxFrames = 10;
+      let frame = 0;
+
+      const interval = setInterval(() => {
+        let displayed = "";
+        for (let i = 0; i < index; i++) {
+          displayed += targetText[i];
+        }
+        for (let i = index; i < targetText.length; i++) {
+          displayed += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
+        output.textContent = displayed;
+        frame++;
+
+        if (frame >= maxFrames) {
+          output.textContent = targetText.substring(0, index + 1);
+          clearInterval(interval);
+          currentIndex++;
+          typing = false;
+        }
+      }, 40);
+    }
+
+    document.addEventListener("keydown", () => {
+      if (!typing && currentIndex < targetText.length) {
+        typing = true;
+        scrambleText(currentIndex);
+      }
+    });
+  </script>
 </body>
 </html>
