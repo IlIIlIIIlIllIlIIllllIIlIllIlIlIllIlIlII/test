@@ -25,12 +25,19 @@
   <div id="info">読み込み中...</div>
 
   <script>
+    // ランダム記号を生成する関数
+    function getRandomSymbol() {
+      const symbols = ['#', '*', '@', '&', '%', '$', '^'];
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    // テキストを1文字ずつ表示する関数
     function revealText(element) {
       const spans = element.querySelectorAll("span");
       spans.forEach((span, i) => {
         setTimeout(() => {
           span.classList.add("visible");
-        }, i * 50); // ← 文字ごとの表示速度（ms）
+        }, i * 100); // 文字ごとの表示スピード（ms）
       });
     }
 
@@ -38,24 +45,43 @@
       .then(res => res.json())
       .then(data => {
         const lines = [
-          `📡 IPアドレス: ${data.ip}`,
-          `🌍 国: ${data.country_name} (${data.country})`,
-          `🏙️ 地域: ${data.region}, ${data.city}`,
-          `🏢 プロバイダ: ${data.org}`,
-          `🧭 緯度: ${data.latitude}, 経度: ${data.longitude}`,
-          `🕵️ User-Agent: ${navigator.userAgent}`
+          `IPアドレス: ${data.ip}`,
+          `国: ${data.country_name} (${data.country})`,
+          `地域: ${data.region}, ${data.city}`,
+          `プロバイダ: ${data.org}`,
+          `緯度: ${data.latitude}, 経度: ${data.longitude}`,
+          `User-Agent: ${navigator.userAgent}`
         ];
 
         const info = document.getElementById("info");
         info.innerHTML = ""; // 初期化
 
-        // 各文字を span に分解しながら追加
+        // 各文字をspanに分解
         const fullText = lines.join("\n");
         for (const char of fullText) {
           const span = document.createElement("span");
           span.textContent = char;
           info.appendChild(span);
         }
+
+        // ランダム記号挿入：文字の間に挟み込む
+        const allSpans = info.querySelectorAll("span");
+        allSpans.forEach((span, i) => {
+          let currentChar = span.textContent;
+          
+          // 記号を挟む回数をランダムで決める（2~4回）
+          let insertCount = Math.floor(Math.random() * 3) + 2;
+          let newText = currentChar;
+
+          for (let j = 0; j < insertCount; j++) {
+            newText += getRandomSymbol(); // ランダム記号挿入
+          }
+
+          // 1回ランダム記号挿入した後に目的の文字を表示
+          setTimeout(() => {
+            span.textContent = newText + currentChar; // 最後に本来の文字
+          }, i * 200); // 文字の遅延時間
+        });
 
         // アニメーション開始
         revealText(info);
