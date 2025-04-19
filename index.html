@@ -2,26 +2,21 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>アクセス情報表示</title>
+  <title>アクセス情報アニメ</title>
   <style>
     body {
       background-color: #000;
       color: #0f0;
       font-family: monospace;
       padding: 2rem;
+      white-space: pre-wrap;
     }
-    h1 {
-      color: #00ff00;
-      margin-bottom: 1rem;
-    }
-    .info-line {
+    #info span {
       opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.5s ease;
+      transition: opacity 0.1s ease;
     }
-    .info-line.visible {
+    #info span.visible {
       opacity: 1;
-      transform: translateY(0);
     }
   </style>
 </head>
@@ -30,6 +25,15 @@
   <div id="info">読み込み中...</div>
 
   <script>
+    function revealText(element) {
+      const spans = element.querySelectorAll("span");
+      spans.forEach((span, i) => {
+        setTimeout(() => {
+          span.classList.add("visible");
+        }, i * 50); // ← 文字ごとの表示速度（ms）
+      });
+    }
+
     fetch("https://ipapi.co/json/")
       .then(res => res.json())
       .then(data => {
@@ -45,17 +49,16 @@
         const info = document.getElementById("info");
         info.innerHTML = ""; // 初期化
 
-        lines.forEach((line, i) => {
-          const div = document.createElement("div");
-          div.className = "info-line";
-          div.textContent = line;
-          info.appendChild(div);
+        // 各文字を span に分解しながら追加
+        const fullText = lines.join("\n");
+        for (const char of fullText) {
+          const span = document.createElement("span");
+          span.textContent = char;
+          info.appendChild(span);
+        }
 
-          // 0.1秒ずつディレイをかけて表示
-          setTimeout(() => {
-            div.classList.add("visible");
-          }, i * 100);
-        });
+        // アニメーション開始
+        revealText(info);
       })
       .catch(err => {
         document.getElementById("info").textContent = "取得に失敗しました。";
