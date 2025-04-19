@@ -2,27 +2,39 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>HELLO WORLD</title>
+  <title>HELLO, HACKER</title>
   <style>
     body {
-      background-color: black;
-      color: lime;
-      font-family: monospace;
-      text-align: center;
-      margin-top: 20%;
+      background-color: #000;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
     }
     h1 {
-      font-size: 4rem;
-      animation: blink 1s infinite;
+      font-size: 3.5rem;
+      animation: flicker 1s infinite alternate;
     }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.2; }
+    p {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      opacity: 0.7;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <h1>HELLO, HACKER WORLD!</h1>
-  <p>Welcome to the Matrix 🌐</p>
+  <h1>HELLO, HACKER WORLD.</h1>
+  <p>Powered by GitHub Pages</p>
 </body>
 </html>
