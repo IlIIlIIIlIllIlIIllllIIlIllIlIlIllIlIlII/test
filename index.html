@@ -2,99 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>アクセス情報アニメ</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #0f0;
-      font-family: monospace;
-      padding: 2rem;
-      white-space: pre-wrap;
-    }
-    #info span {
-      opacity: 0;
-      transition: opacity 1s ease; /* フェードイン時間 */
-    }
-    #info span.visible {
-      opacity: 1;
-    }
-    .symbol {
-      color: red; /* 記号の色 */
-    }
-  </style>
+  <title>YouTube動画の埋め込み</title>
 </head>
 <body>
-  <h1>あなたのアクセス情報</h1>
-  <div id="info">読み込み中...</div>
+  <h1>YouTube動画の埋め込み</h1>
+  
+  <!-- YouTube動画の埋め込み -->
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/qMQ4P-vI3JI?si=oCsTbUwLm9t2bN3v" 
+          title="YouTube video player" frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-  <script>
-    // ランダム記号を生成する関数
-    function getRandomSymbol() {
-      const symbols = [
-        '#', '*', '@', '&', '%', '$', '^', '!', '~', '?', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 
-        '(', ')', '[', ']', '{', '}', '|', '\\', '/', '=', '-', '+', '>', '<', ':', ';', '"', "'", '£', '©', '©'
-      ];
-      return symbols[Math.floor(Math.random() * symbols.length)];
-    }
-
-    // ランダム記号でアニメーションする関数
-    function revealText(element) {
-      const spans = element.querySelectorAll("span");
-      spans.forEach((span, i) => {
-        setTimeout(() => {
-          // フェードインで文字が表示される
-          span.classList.add("visible");
-        }, i * 200); // 文字ごとの表示遅延（200msごと）
-      });
-
-      setTimeout(() => {
-        spans.forEach((span, i) => {
-          let currentChar = span.textContent;
-
-          let switchCount = 0;  // 何回切り替えるかのカウント
-          let interval = setInterval(() => {
-            if (switchCount >= 5) {  // 5回切り替えたら終了
-              clearInterval(interval);
-              span.textContent = currentChar; // 元の文字に戻す
-            } else {
-              span.textContent = getRandomSymbol(); // 記号表示
-              switchCount++;
-            }
-          }, 200); // 記号が変わる速度（200msごと）
-        });
-      }, spans.length * 200); // フェードインが終わった後に記号アニメーションを開始
-    }
-
-    fetch("https://ipapi.co/json/")
-      .then(res => res.json())
-      .then(data => {
-        const lines = [
-          `IPアドレス: ${data.ip}`,
-          `国: ${data.country_name} (${data.country})`,
-          `地域: ${data.region}, ${data.city}`,
-          `プロバイダ: ${data.org}`,
-          `緯度: ${data.latitude}, 経度: ${data.longitude}`,
-          `User-Agent: ${navigator.userAgent}`
-        ];
-
-        const info = document.getElementById("info");
-        info.innerHTML = ""; // 初期化
-
-        // 各文字をspanに分解
-        const fullText = lines.join("\n");
-        for (const char of fullText) {
-          const span = document.createElement("span");
-          span.textContent = char;
-          info.appendChild(span);
-        }
-
-        // アニメーション開始
-        revealText(info);
-      })
-      .catch(err => {
-        document.getElementById("info").textContent = "取得に失敗しました。";
-        console.error(err);
-      });
-  </script>
 </body>
 </html>
