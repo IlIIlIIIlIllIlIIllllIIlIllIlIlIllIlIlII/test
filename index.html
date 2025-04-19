@@ -18,6 +18,9 @@
     #info span.visible {
       opacity: 1;
     }
+    .symbol {
+      color: red; /* 記号の色 */
+    }
   </style>
 </head>
 <body>
@@ -27,17 +30,30 @@
   <script>
     // ランダム記号を生成する関数
     function getRandomSymbol() {
-      const symbols = ['#', '*', '@', '&', '%', '$', '^'];
+      const symbols = [
+        '#', '*', '@', '&', '%', '$', '^', '!', '~', '?', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 
+        '(', ')', '[', ']', '{', '}', '|', '\\', '/', '=', '-', '+', '>', '<', ':', ';', '"', "'", '£', '©', '©'
+      ];
       return symbols[Math.floor(Math.random() * symbols.length)];
     }
 
-    // テキストを1文字ずつ表示する関数
+    // ランダム記号でアニメーションする関数
     function revealText(element) {
       const spans = element.querySelectorAll("span");
       spans.forEach((span, i) => {
         setTimeout(() => {
-          span.classList.add("visible");
-        }, i * 100); // 文字ごとの表示スピード（ms）
+          // 記号をランダムに表示し、その後に本来の文字に戻す
+          let currentChar = span.textContent;
+          let interval = setInterval(() => {
+            span.textContent = getRandomSymbol(); // 記号表示
+          }, 100); // 記号が変わる速度
+
+          setTimeout(() => {
+            clearInterval(interval); // 記号アニメーションを止める
+            span.textContent = currentChar; // 最終的に本来の文字に戻す
+            span.classList.add("visible"); // 表示する
+          }, 600); // 記号表示後、元の文字に戻るタイミング
+        }, i * 200); // 文字ごとの表示遅延（200msごと）
       });
     }
 
@@ -63,25 +79,6 @@
           span.textContent = char;
           info.appendChild(span);
         }
-
-        // ランダム記号挿入：文字の間に挟み込む
-        const allSpans = info.querySelectorAll("span");
-        allSpans.forEach((span, i) => {
-          let currentChar = span.textContent;
-          
-          // 記号を挟む回数をランダムで決める（2~4回）
-          let insertCount = Math.floor(Math.random() * 3) + 2;
-          let newText = currentChar;
-
-          for (let j = 0; j < insertCount; j++) {
-            newText += getRandomSymbol(); // ランダム記号挿入
-          }
-
-          // 1回ランダム記号挿入した後に目的の文字を表示
-          setTimeout(() => {
-            span.textContent = newText + currentChar; // 最後に本来の文字
-          }, i * 200); // 文字の遅延時間
-        });
 
         // アニメーション開始
         revealText(info);
