@@ -14,8 +14,14 @@
       color: #00ff00;
       margin-bottom: 1rem;
     }
-    .info {
-      margin-bottom: 0.5rem;
+    .info-line {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease;
+    }
+    .info-line.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -27,15 +33,29 @@
     fetch("https://ipapi.co/json/")
       .then(res => res.json())
       .then(data => {
-        const output = `
-          <div class="info">📡 IPアドレス: ${data.ip}</div>
-          <div class="info">🌍 国: ${data.country_name} (${data.country})</div>
-          <div class="info">🏙️ 地域: ${data.region}, ${data.city}</div>
-          <div class="info">🏢 プロバイダ: ${data.org}</div>
-          <div class="info">🧭 緯度: ${data.latitude}, 経度: ${data.longitude}</div>
-          <div class="info">🕵️ User-Agent: ${navigator.userAgent}</div>
-        `;
-        document.getElementById("info").innerHTML = output;
+        const lines = [
+          `📡 IPアドレス: ${data.ip}`,
+          `🌍 国: ${data.country_name} (${data.country})`,
+          `🏙️ 地域: ${data.region}, ${data.city}`,
+          `🏢 プロバイダ: ${data.org}`,
+          `🧭 緯度: ${data.latitude}, 経度: ${data.longitude}`,
+          `🕵️ User-Agent: ${navigator.userAgent}`
+        ];
+
+        const info = document.getElementById("info");
+        info.innerHTML = ""; // 初期化
+
+        lines.forEach((line, i) => {
+          const div = document.createElement("div");
+          div.className = "info-line";
+          div.textContent = line;
+          info.appendChild(div);
+
+          // 0.1秒ずつディレイをかけて表示
+          setTimeout(() => {
+            div.classList.add("visible");
+          }, i * 100);
+        });
       })
       .catch(err => {
         document.getElementById("info").textContent = "取得に失敗しました。";
