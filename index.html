@@ -2,13 +2,79 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ローカル動画の再生</title>
+  <title>画像を8つ配置</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #111;
+    }
+
+    #container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 10px; /* 画像間の間隔 */
+      width: 90vw;
+      height: 90vh;
+      margin: auto;
+      padding: 5vh 0;
+    }
+
+    .cell {
+      background-repeat: no-repeat;
+      background-size: cover; /* 画像サイズに合わせる */
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      transition: transform 0.3s;
+    }
+
+    .cell:hover {
+      transform: scale(1.05);
+      z-index: 1;
+    }
+  </style>
 </head>
 <body>
-  <h1>動画を再生中</h1>
-  <video width="640" height="360" controls>
-    <source src="SaleelSawarim （剣の衝突？）.mp4" type="video/mp4">
-    お使いのブラウザは video タグに対応していません。
-  </video>
+  <div id="container"></div>
+
+  <script>
+    const container = document.getElementById("container");
+
+    const images = [
+      "meta.png", "meta.png", "meta.png", "meta.png", 
+      "meta.png", "meta.png", "meta.png", "meta.png"
+    ];  // 画像URLを指定
+
+    // 画像の読み込み処理を非同期に行い、読み込みが終わってから処理を開始
+    const img = new Image();
+    img.src = "meta.png";  // 任意の画像URL（例: "meta.png"）
+    img.onload = function() {
+      const { width: imgWidth, height: imgHeight } = img;  // 画像サイズ取得
+
+      // 画像を8つのオブジェクトに割り当てて配置
+      for (let i = 0; i < images.length; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+
+        // 各オブジェクトに画像を設定
+        cell.style.backgroundImage = `url(${images[i]})`;
+        cell.style.width = `${imgWidth}px`;
+        cell.style.height = `${imgHeight}px`;
+
+        // 位置調整: 2列×4行
+        const row = Math.floor(i / 2) + 1;
+        const col = (i % 2) + 1;
+
+        // gridの列と行を設定
+        cell.style.gridRow = row;
+        cell.style.gridColumn = col;
+
+        // コンテナに追加
+        container.appendChild(cell);
+      }
+    };
+  </script>
 </body>
 </html>
