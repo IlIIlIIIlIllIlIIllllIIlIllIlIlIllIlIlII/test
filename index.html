@@ -2,89 +2,154 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-  <title>画像を8つ配置</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no,
+                 maximum-scale=1.0, minimum-scale=1.0">
+  <title>Window Grid Demo</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #111;
-      overflow: hidden;  /* スクロール禁止 */
-      width: 100%;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body,html{width:100%;height:100%;overflow:hidden;background:#111;}
+    #stage{position:relative;width:100%;height:100%;}
+    .cell{
+      position:absolute;
+      width:150px;height:150px;
+      background:url(meta.png) center/cover no-repeat;
+      cursor:pointer;
+      border-radius:8px;
     }
-
-    #container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);  /* 2列 */
-      grid-template-rows: repeat(4, 1fr);     /* 4行 */
-      gap: 20px; /* 画像間の間隔 */
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center; /* 横方向で中央に配置 */
-      align-items: center;     /* 縦方向で中央に配置 */
+    .cell.faded {
+      animation:fadeGreen .8s ease-in-out alternate 2;
     }
-
-    .cell {
-      background-repeat: no-repeat;
-      background-size: cover; /* 画像サイズに合わせる */
-      transition: transform 0.3s;
-      position: relative;
-    }
-
-    .cell:hover {
-      transform: scale(1.05);
-      z-index: 1;
+    @keyframes fadeGreen {
+      from { filter:none; }
+      to   { filter:sepia(1) hue-rotate(90deg) brightness(1.5); }
     }
   </style>
 </head>
 <body>
-  <div id="container"></div>
-
+  <div id="stage"></div>
   <script>
-    const container = document.getElementById("container");
+  (async()=>{
+    const COLS=4, ROWS=2;
+    const WIN_W=150, WIN_H=150, GAP=20;
+    const WAIT_AFTER_GEN=3400;    // ms
+    const ANIM_DUR=190;           // ms
+    const CIRC_SPEED=1;           // deg/frame
+    const CIRC_RX=300, CIRC_RY=200;
+    const TARGET_PATTERNS = [
+      "12345678","26731584","15842673","56431287","64312875","43128756",
+      "37264815","78123456","65432187","34567812","78123456","65432187",
+      "12785634","65432187","12785634","41278563","84625137","78462513",
+      "25137846","51378462","13784625","87315264","48731526","51628437",
+      "85364172","51628437","26157348","73482615","62513784","27856341",
+      "12785634"
+    ];
+    const stage = document.getElementById("stage");
+    const cells = [], currentPos = [];
 
-    const images = [
-      "meta.png", "meta.png", "meta.png", "meta.png", 
-      "meta.png", "meta.png", "meta.png", "meta.png"
-    ];  // 画像URLを指定
+    // 1) ８セル作成
+    for(let i=0;i<COLS*ROWS;i++){
+      const d=document.createElement("div");
+      d.className="cell";
+      stage.appendChild(d);
+      cells.push(d);
+    }
 
-    // 画像の読み込み処理を非同期に行い、読み込みが終わってから処理を開始
-    const img = new Image();
-    img.src = "meta.png";  // 任意の画像URL（例: "meta.png"）
-    img.onload = function() {
-      const { width: imgWidth, height: imgHeight } = img;  // 画像サイズ取得
-
-      // コンテナのサイズを取得し、画像のサイズを動的に調整
-      const containerWidth = container.clientWidth;
-      const containerHeight = container.clientHeight;
-
-      // 画像サイズの計算
-      const imgSize = Math.min(containerWidth / 2 - 20, containerHeight / 4 - 20);  // 画像のサイズを調整
-
-      // 画像を8つのオブジェクトに割り当てて配置
-      for (let i = 0; i < images.length; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-
-        // 各オブジェクトに画像を設定
-        cell.style.backgroundImage = `url(${images[i]})`;
-        cell.style.width = `${imgSize}px`;
-        cell.style.height = `${imgSize}px`;
-
-        // 位置調整: 2列×4行
-        const row = Math.floor(i / 2) + 1;
-        const col = (i % 2) + 1;
-
-        // gridの列と行を設定
-        cell.style.gridRow = row;
-        cell.style.gridColumn = col;
-
-        // コンテナに追加
-        container.appendChild(cell);
+    // 2) グリッド中央配置関数
+    function calcGrid(){
+      const totalW = COLS*WIN_W + (COLS-1)*GAP;
+      const totalH = ROWS*WIN_H + (ROWS-1)*GAP;
+      const ox = (innerWidth - totalW)/2;
+      const oy = (innerHeight- totalH)/2;
+      const positions = [];
+      for(let i=0;i<COLS*ROWS;i++){
+        const x = i%COLS, y=Math.floor(i/COLS);
+        positions.push({
+          x: ox + x*(WIN_W+GAP),
+          y: oy + y*(WIN_H+GAP)
+        });
       }
-    };
+      return positions;
+    }
+
+    // 初期グリッド配置
+    let gridPos = calcGrid();
+    gridPos.forEach((p,i)=>{
+      cells[i].style.left = p.x+"px";
+      cells[i].style.top  = p.y+"px";
+      currentPos[i] = { ...p };
+    });
+
+    window.addEventListener('resize', ()=>{
+      gridPos = calcGrid();
+      // 再配置：今はリセットではなく、素直にグリッドに戻す
+      gridPos.forEach((p,i)=>{
+        cells[i].style.left = p.x+"px";
+        cells[i].style.top  = p.y+"px";
+        currentPos[i] = { ...p };
+      });
+    });
+
+    // 3) ランダムフェード
+    await new Promise(r=>setTimeout(r,500));
+    const target = Math.floor(Math.random()*cells.length);
+    cells[target].classList.add("faded");
+
+    // 4) パターンシャッフルをシーケンシャルに実行
+    await new Promise(r=>setTimeout(r, WAIT_AFTER_GEN));
+    for(const pat of TARGET_PATTERNS){
+      await new Promise(res=>{
+        // アニメーション完了を待つ
+        let done = 0, total = cells.length;
+        // 各セル k=pat[j]-1 をグリッド位置 j へ移動
+        for(let j=0;j<total;j++){
+          const k = Number(pat[j])-1;
+          const np = gridPos[j];
+          const anim = cells[k].animate([
+            { left: currentPos[k].x+"px", top: currentPos[k].y+"px" },
+            { left: np.x+"px", top: np.y+"px" }
+          ],{ duration:ANIM_DUR, fill:'forwards' });
+          anim.onfinish = ()=>{
+            currentPos[k] = { ...np };
+            if(++done===total) res();
+          };
+        }
+      });
+    }
+
+    // 5) 楕円回転
+    let angle=0;
+    (function circ(){
+      const cx = innerWidth/2, cy=innerHeight/2;
+      cells.forEach((d,i)=>{
+        const a = (angle + i*(360/cells.length))*Math.PI/180;
+        const x = cx + CIRC_RX*Math.cos(a) - WIN_W/2;
+        const y = cy + CIRC_RY*Math.sin(a) - WIN_H/2;
+        d.style.left = x+"px";
+        d.style.top  = y+"px";
+      });
+      angle = (angle + CIRC_SPEED)%360;
+      requestAnimationFrame(circ);
+    })();
+
+    // 6) マウス近接で拡大
+    document.addEventListener("mousemove",e=>{
+      cells.forEach(d=>{
+        const rect = d.getBoundingClientRect();
+        const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+        const dist = Math.hypot(e.clientX-cx, e.clientY-cy);
+        d.style.transform = dist<100 ? "scale(1.2)" : "scale(1)";
+      });
+    });
+
+    // 7) クリック判定
+    cells.forEach((d,i)=>{
+      d.addEventListener("click",()=>{
+        if(i===target) alert("you win!");
+        else          alert("wrong key");
+      });
+    });
+  })();
   </script>
 </body>
 </html>
