@@ -1,95 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>HACKER MODE</title>
-    <style>
-        body {
-            background-color: black;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            margin: 0;
-            padding: 20px;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8">
+  <title>ULTIMATE HACKER MODE RTX ON</title>
+  <style>
+    body {
+      background: radial-gradient(circle at center, #000000, #0a0a0a);
+      color: #00ffcc;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
 
-        #console {
-            white-space: pre-wrap;
-            overflow-y: scroll;
-            height: 100vh;
-            border: 2px solid limegreen;
-            padding: 10px;
-        }
+    #console {
+      padding: 30px;
+      height: 100vh;
+      overflow-y: scroll;
+      box-sizing: border-box;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,0,0.02),
+        rgba(0,255,0,0.02) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      box-shadow: inset 0 0 30px rgba(0, 255, 0, 0.4);
+      color: #00ffcc;
+      text-shadow: 0 0 5px #00ffc3, 0 0 10px #00ffc3;
+      filter: contrast(1.2);
+    }
 
-        .line {
-            margin: 2px 0;
-        }
+    .line {
+      margin-bottom: 8px;
+      white-space: pre-wrap;
+    }
 
-        .glitch {
-            color: #ff00ff;
-            animation: glitch 0.3s infinite;
-        }
+    .glitch {
+      position: relative;
+      display: inline-block;
+      color: #00ffcc;
+      animation: glitchAnim 0.4s infinite;
+    }
 
-        @keyframes glitch {
-            0% { text-shadow: 2px 0 red; }
-            50% { text-shadow: -2px 0 blue; }
-            100% { text-shadow: 2px 0 red; }
-        }
-    </style>
+    @keyframes glitchAnim {
+      0% {
+        text-shadow: 2px 0 red, -2px 0 blue;
+      }
+      20% {
+        text-shadow: -1px 0 green, 1px 0 cyan;
+      }
+      40% {
+        text-shadow: 2px -1px magenta, -2px 1px yellow;
+      }
+      60% {
+        text-shadow: -1px -1px lime, 1px 1px purple;
+      }
+      80% {
+        text-shadow: 2px 2px red, -2px -2px blue;
+      }
+      100% {
+        text-shadow: 0 0 5px #00ffc3;
+      }
+    }
+
+    @keyframes cursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      background-color: #00ffcc;
+      margin-left: 2px;
+      animation: cursor 1s step-end infinite;
+    }
+  </style>
 </head>
 <body>
-    <div id="console"></div>
+  <div id="console"></div>
 
-    <script>
-        const consoleElement = document.getElementById('console');
+  <script>
+    const consoleElement = document.getElementById('console');
 
-        const hackerLines = [
-            "[+] Connecting to mainframe...",
-            "[+] Bypassing firewall v3.27...",
-            "[!] Warning: Unauthorized access detected.",
-            "[+] Injecting payload: payload.exe",
-            "[+] Downloading 128TB of government data...",
-            "[+] Establishing reverse shell on port 4444",
-            "[ERROR] Segmentation fault at 0x0040dead",
-            "[+] Decrypting passwords with quantum AI...",
-            "[!] Trace detected! Spoofing IP address...",
-            "[+] Access granted. Root privileges obtained.",
-            "[SYSTEM] Launching nuke.exe...",
-            "[ERROR] Cannot divide by cucumber",
-            "[+] Compiling brainfuck payload...",
-            "[LOG] ████████████████████████████████",
-            "[~] Running infinite loop: while(true) { hack(); }",
-            "[+] Self-destruct in 3... 2... JK lol",
-        ];
+    const epicLines = [
+      "[ SYSTEM INITIATED // RTX MODE ENABLED ]",
+      "[ ACCESSING ████ CORE ]",
+      "[ BYPASSING NVIDIA QUANTUM SHADER LIMITATIONS ]",
+      "[ RETRACING SYSTEM TOPOLOGY USING RTX PATHFINDER ]",
+      "[ DEEP GLITCH DETECTED — PATCHING REALITY... ]",
+      "[ ∆ WARNING: Dimensional Firewall Breached ∆ ]",
+      "[ DOWNLOADING TIME: 00110101010101010101... ]",
+      "[ GPU OVERCLOCK: +∞ TeraFLOPS ]",
+      "[ LIVE TRACE STARTED >> TARGET: 127.0.0.1 ]",
+      "[ UPLOADING REALITY PATCH ]",
+      "[ REWRITING DNS → 0xDEADBEEF ]",
+      "[ SHADER REFLECTION: ✨✨✨ RTX LIGHTING INITIATED ✨✨✨ ]",
+      "[ GLITCH GLITCH GLITCH GLITCH GLITCH ]",
+      "[ ACCESS GRANTED: ████ ██████ ████ ]",
+      "[ MEMORY OVERFLOW: 42,069TB | SYSTEM STABLE. (For now) ]",
+      "[ TIME TRAVEL ENGINE READY. Initiating... ]",
+    ];
 
-        function addLine(text, isGlitch = false) {
-            const line = document.createElement('div');
-            line.className = 'line';
-            if (isGlitch) line.classList.add('glitch');
-            line.textContent = text;
-            consoleElement.appendChild(line);
-            consoleElement.scrollTop = consoleElement.scrollHeight;
-        }
+    function addLine(text, isGlitch = false) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      if (isGlitch) {
+        const span = document.createElement('span');
+        span.className = 'glitch';
+        span.textContent = text;
+        line.appendChild(span);
+      } else {
+        line.textContent = text;
+      }
+      consoleElement.appendChild(line);
+      consoleElement.scrollTop = consoleElement.scrollHeight;
+    }
 
-        function randomGarbageLine() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|:"<>?[]\\;\',./`~';
-            let result = '';
-            for (let i = 0; i < Math.random() * 80 + 20; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
+    function randomGarbageLine(length = 60) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|:<>?";
+      return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    }
 
-        let i = 0;
-        const interval = setInterval(() => {
-            if (i < hackerLines.length) {
-                addLine(hackerLines[i]);
-            } else {
-                addLine(randomGarbageLine(), Math.random() < 0.2);
-            }
-            i++;
-            if (i > 1000) clearInterval(interval); // 無限暴走防止用
-        }, 100);
-    </script>
+    let index = 0;
+
+    function render() {
+      if (index < epicLines.length) {
+        addLine(epicLines[index], Math.random() < 0.3);
+      } else {
+        addLine(randomGarbageLine(Math.floor(Math.random() * 100) + 20), Math.random() < 0.2);
+      }
+      index++;
+      if (index < 300) {
+        setTimeout(render, 100 + Math.random() * 100);
+      } else {
+        addLine("[ THE SIMULATION IS COMPLETE. SHUTTING DOWN RTX WORLD... ]", true);
+      }
+    }
+
+    render();
+  </script>
 </body>
 </html>
