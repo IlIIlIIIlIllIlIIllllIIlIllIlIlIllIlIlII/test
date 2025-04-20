@@ -2,10 +2,77 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>どうでもいいindex</title>
+  <title>STAND: SYSTEM OVERDRIVE</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      overflow: hidden;
+      color: #00ff00;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .stand-name {
+      position: absolute;
+      top: 40%;
+      width: 100%;
+      text-align: center;
+      font-size: 3em;
+      opacity: 0;
+      animation: fadeInOut 5s ease-in-out;
+    }
+
+    .matrix {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .line {
+      position: absolute;
+      white-space: nowrap;
+      animation: scrollUp linear infinite;
+      color: #00ff00;
+      opacity: 0.1;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      30% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes scrollUp {
+      0% { top: 100%; }
+      100% { top: -100%; }
+    }
+  </style>
 </head>
 <body>
-  <h1>適当な index.html</h1>
-  <p>気にしなくてOK。</p>
+
+  <div class="stand-name">SYSTEM OVERDRIVE</div>
+  <div class="matrix" id="matrix"></div>
+
+  <script>
+    const matrix = document.getElementById('matrix');
+    const words = [
+      '0xDEADBEEF', 'injecting payload...', 'standby...', '>>> memory overwrite',
+      'kernel32.dll hooked', '>> shellcode injected', '再起動を許すな', 
+      'AVバイパス完了', '入ってるぞ、もう', '「やれやれだぜ」'
+    ];
+
+    for (let i = 0; i < 50; i++) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.style.left = `${Math.random() * 100}%`;
+      line.style.fontSize = `${Math.random() * 12 + 12}px`;
+      line.style.animationDuration = `${Math.random() * 10 + 5}s`;
+      line.textContent = words[Math.floor(Math.random() * words.length)];
+      matrix.appendChild(line);
+    }
+  </script>
+
 </body>
 </html>
