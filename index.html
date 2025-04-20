@@ -1,219 +1,95 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌙 マインスイーパー - 目に優しい夜モード</title>
-  <style>
-    /* 共通スタイル */
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #1e1e2f;
-      color: #eee;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <title>HACKER MODE</title>
+    <style>
+        body {
+            background-color: black;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
 
-    h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-      color: #b9fbc0;
-      text-shadow: 0 0 10px #2d6a4f;
-    }
+        #console {
+            white-space: pre-wrap;
+            overflow-y: scroll;
+            height: 100vh;
+            border: 2px solid limegreen;
+            padding: 10px;
+        }
 
-    /* ゲームのグリッド */
-    #game {
-      display: grid;
-      gap: 5px;
-      margin: 30px auto;
-      width: max-content;
-      background-color: #2b2d42;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 255, 128, 0.2);
-    }
+        .line {
+            margin: 2px 0;
+        }
 
-    /* ゲームセル */
-    .cell {
-      background-color: #3a3a5a;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      color: #fff;
-      font-size: 16px;
-      font-weight: bold;
-      line-height: 40px;
-      user-select: none;
-    }
+        .glitch {
+            color: #ff00ff;
+            animation: glitch 0.3s infinite;
+        }
 
-    /* ゲームセルのアニメーション */
-    .cell.revealed {
-      background-color: #1f2a36;
-      color: #b9fbc0;
-      animation: revealAnim 0.3s ease-out;
-    }
-
-    @keyframes revealAnim {
-      from {
-        transform: scale(0.9);
-        opacity: 0.2;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    /* モバイル用調整 */
-    @media (max-width: 768px) {
-      #game {
-        grid-template-columns: repeat(10, 30px); /* モバイルでも10列に維持 */
-      }
-
-      .cell {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-      }
-
-      h1 {
-        font-size: 1.5em;
-      }
-    }
-
-    /* デスクトップ用調整 */
-    @media (min-width: 769px) {
-      #game {
-        grid-template-columns: repeat(10, 40px); /* 横10個 */
-      }
-
-      .cell {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-      }
-    }
-  </style>
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 red; }
+            50% { text-shadow: -2px 0 blue; }
+            100% { text-shadow: 2px 0 red; }
+        }
+    </style>
 </head>
 <body>
-  <h1>🌙 マインスイーパー</h1>
-  <div id="game"></div>
+    <div id="console"></div>
 
-  <script>
-    const rows = 10;
-    const cols = 10;
-    const bombCount = 10;
-    const game = document.getElementById('game');
-    const cells = [];
-    let isMobile = false; // 初期状態はデスクトップと仮定
+    <script>
+        const consoleElement = document.getElementById('console');
 
-    // デバイス判定
-    function checkDevice() {
-      if (window.innerWidth <= 768) {
-        isMobile = true;
-      } else {
-        isMobile = false;
-      }
-    }
+        const hackerLines = [
+            "[+] Connecting to mainframe...",
+            "[+] Bypassing firewall v3.27...",
+            "[!] Warning: Unauthorized access detected.",
+            "[+] Injecting payload: payload.exe",
+            "[+] Downloading 128TB of government data...",
+            "[+] Establishing reverse shell on port 4444",
+            "[ERROR] Segmentation fault at 0x0040dead",
+            "[+] Decrypting passwords with quantum AI...",
+            "[!] Trace detected! Spoofing IP address...",
+            "[+] Access granted. Root privileges obtained.",
+            "[SYSTEM] Launching nuke.exe...",
+            "[ERROR] Cannot divide by cucumber",
+            "[+] Compiling brainfuck payload...",
+            "[LOG] ████████████████████████████████",
+            "[~] Running infinite loop: while(true) { hack(); }",
+            "[+] Self-destruct in 3... 2... JK lol",
+        ];
 
-    // ウィンドウのリサイズイベントで向き変化を検知
-    window.addEventListener('resize', checkDevice);
-
-    function createGrid() {
-      let bombsPlaced = 0;
-
-      // モバイルでもグリッドは10×10
-      const rowsToUse = rows; // モバイルでも行数はそのまま
-      const colsToUse = cols; // モバイルでも列数はそのまま
-
-      for (let i = 0; i < rowsToUse * colsToUse; i++) {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        cell.dataset.index = i;
-        cell.addEventListener('click', onCellClick);
-        game.appendChild(cell);
-        cells.push({ element: cell, bomb: false, revealed: false, count: 0 });
-      }
-
-      while (bombsPlaced < bombCount) {
-        const index = Math.floor(Math.random() * cells.length);
-        if (!cells[index].bomb) {
-          cells[index].bomb = true;
-          bombsPlaced++;
+        function addLine(text, isGlitch = false) {
+            const line = document.createElement('div');
+            line.className = 'line';
+            if (isGlitch) line.classList.add('glitch');
+            line.textContent = text;
+            consoleElement.appendChild(line);
+            consoleElement.scrollTop = consoleElement.scrollHeight;
         }
-      }
 
-      for (let i = 0; i < cells.length; i++) {
-        const neighbors = getNeighbors(i);
-        cells[i].count = neighbors.filter(n => cells[n].bomb).length;
-      }
-    }
-
-    function getNeighbors(index) {
-      const neighbors = [];
-      const x = index % cols;
-      const y = Math.floor(index / cols);
-
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          if (dx === 0 && dy === 0) continue;
-          const nx = x + dx;
-          const ny = y + dy;
-          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
-            neighbors.push(ny * cols + nx);
-          }
+        function randomGarbageLine() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+{}|:"<>?[]\\;\',./`~';
+            let result = '';
+            for (let i = 0; i < Math.random() * 80 + 20; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         }
-      }
 
-      return neighbors;
-    }
-
-    function onCellClick(e) {
-      const index = parseInt(e.target.dataset.index);
-      reveal(index);
-    }
-
-    function reveal(index) {
-      const cell = cells[index];
-      if (cell.revealed) return;
-
-      cell.revealed = true;
-      cell.element.classList.add('revealed');
-      if (cell.bomb) {
-        cell.element.classList.add('bomb');
-        cell.element.textContent = '💣';
-        alert('💥 ゲームオーバー！またチャレンジしてね');
-        revealAll();
-        return;
-      }
-
-      if (cell.count > 0) {
-        cell.element.textContent = cell.count;
-      } else {
-        const neighbors = getNeighbors(index);
-        neighbors.forEach(reveal);
-      }
-    }
-
-    function revealAll() {
-      for (const cell of cells) {
-        if (!cell.revealed) {
-          cell.revealed = true;
-          cell.element.classList.add('revealed');
-          if (cell.bomb) {
-            cell.element.classList.add('bomb');
-            cell.element.textContent = '💣';
-          } else if (cell.count > 0) {
-            cell.element.textContent = cell.count;
-          }
-        }
-      }
-    }
-
-    // 初期デバイス判定
-    checkDevice();
-    createGrid();
-  </script>
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < hackerLines.length) {
+                addLine(hackerLines[i]);
+            } else {
+                addLine(randomGarbageLine(), Math.random() < 0.2);
+            }
+            i++;
+            if (i > 1000) clearInterval(interval); // 無限暴走防止用
+        }, 100);
+    </script>
 </body>
 </html>
