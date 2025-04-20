@@ -1,155 +1,219 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, user-scalable=no,
-                 maximum-scale=1.0, minimum-scale=1.0">
-  <title>Window Grid Demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌙 マインスイーパー - 目に優しい夜モード</title>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body,html{width:100%;height:100%;overflow:hidden;background:#111;}
-    #stage{position:relative;width:100%;height:100%;}
-    .cell{
-      position:absolute;
-      width:150px;height:150px;
-      background:url(meta.png) center/cover no-repeat;
-      cursor:pointer;
-      border-radius:8px;
+    /* 共通スタイル */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1e1e2f;
+      color: #eee;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
     }
-    .cell.faded {
-      animation:fadeGreen .8s ease-in-out alternate 2;
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #b9fbc0;
+      text-shadow: 0 0 10px #2d6a4f;
     }
-    @keyframes fadeGreen {
-      from { filter:none; }
-      to   { filter:sepia(1) hue-rotate(90deg) brightness(1.5); }
+
+    /* デバイスによるゲームレイアウト */
+    #game {
+      display: grid;
+      gap: 5px;
+      margin: 30px auto;
+      width: max-content;
+      background-color: #2b2d42;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 255, 128, 0.2);
+    }
+
+    /* ゲームセル */
+    .cell {
+      background-color: #3a3a5a;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 40px;
+      user-select: none;
+    }
+
+    /* ゲームセルのアニメーション */
+    .cell.revealed {
+      background-color: #1f2a36;
+      color: #b9fbc0;
+      animation: revealAnim 0.3s ease-out;
+    }
+
+    @keyframes revealAnim {
+      from {
+        transform: scale(0.9);
+        opacity: 0.2;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* モバイル用調整 */
+    @media (max-width: 768px) {
+      #game {
+        grid-template-columns: repeat(5, 50px); /* 横5つに変更 */
+      }
+
+      .cell {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+
+    /* デスクトップ用調整 */
+    @media (min-width: 769px) {
+      #game {
+        grid-template-columns: repeat(10, 40px); /* 横10個 */
+      }
+
+      .cell {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="stage"></div>
+  <h1>🌙 マインスイーパー</h1>
+  <div id="game"></div>
+
   <script>
-  (async()=>{
-    const COLS=4, ROWS=2;
-    const WIN_W=150, WIN_H=150, GAP=20;
-    const WAIT_AFTER_GEN=3400;    // ms
-    const ANIM_DUR=190;           // ms
-    const CIRC_SPEED=1;           // deg/frame
-    const CIRC_RX=300, CIRC_RY=200;
-    const TARGET_PATTERNS = [
-      "12345678","26731584","15842673","56431287","64312875","43128756",
-      "37264815","78123456","65432187","34567812","78123456","65432187",
-      "12785634","65432187","12785634","41278563","84625137","78462513",
-      "25137846","51378462","13784625","87315264","48731526","51628437",
-      "85364172","51628437","26157348","73482615","62513784","27856341",
-      "12785634"
-    ];
-    const stage = document.getElementById("stage");
-    const cells = [], currentPos = [];
+    const rows = 10;
+    const cols = 10;
+    const bombCount = 10;
+    const game = document.getElementById('game');
+    const cells = [];
+    let isMobile = false; // 初期状態はデスクトップと仮定
 
-    // 1) ８セル作成
-    for(let i=0;i<COLS*ROWS;i++){
-      const d=document.createElement("div");
-      d.className="cell";
-      stage.appendChild(d);
-      cells.push(d);
-    }
-
-    // 2) グリッド中央配置関数
-    function calcGrid(){
-      const totalW = COLS*WIN_W + (COLS-1)*GAP;
-      const totalH = ROWS*WIN_H + (ROWS-1)*GAP;
-      const ox = (innerWidth - totalW)/2;
-      const oy = (innerHeight- totalH)/2;
-      const positions = [];
-      for(let i=0;i<COLS*ROWS;i++){
-        const x = i%COLS, y=Math.floor(i/COLS);
-        positions.push({
-          x: ox + x*(WIN_W+GAP),
-          y: oy + y*(WIN_H+GAP)
-        });
+    // デバイス判定
+    function checkDevice() {
+      if (window.innerWidth <= 768) {
+        isMobile = true;
+      } else {
+        isMobile = false;
       }
-      return positions;
     }
 
-    // 初期グリッド配置
-    let gridPos = calcGrid();
-    gridPos.forEach((p,i)=>{
-      cells[i].style.left = p.x+"px";
-      cells[i].style.top  = p.y+"px";
-      currentPos[i] = { ...p };
-    });
+    // ウィンドウのリサイズイベントで向き変化を検知
+    window.addEventListener('resize', checkDevice);
 
-    window.addEventListener('resize', ()=>{
-      gridPos = calcGrid();
-      // 再配置：今はリセットではなく、素直にグリッドに戻す
-      gridPos.forEach((p,i)=>{
-        cells[i].style.left = p.x+"px";
-        cells[i].style.top  = p.y+"px";
-        currentPos[i] = { ...p };
-      });
-    });
+    function createGrid() {
+      let bombsPlaced = 0;
 
-    // 3) ランダムフェード
-    await new Promise(r=>setTimeout(r,500));
-    const target = Math.floor(Math.random()*cells.length);
-    cells[target].classList.add("faded");
+      // モバイルとデスクトップで異なるセル数を決定
+      const rowsToUse = isMobile ? 6 : rows;
+      const colsToUse = isMobile ? 5 : cols;
 
-    // 4) パターンシャッフルをシーケンシャルに実行
-    await new Promise(r=>setTimeout(r, WAIT_AFTER_GEN));
-    for(const pat of TARGET_PATTERNS){
-      await new Promise(res=>{
-        // アニメーション完了を待つ
-        let done = 0, total = cells.length;
-        // 各セル k=pat[j]-1 をグリッド位置 j へ移動
-        for(let j=0;j<total;j++){
-          const k = Number(pat[j])-1;
-          const np = gridPos[j];
-          const anim = cells[k].animate([
-            { left: currentPos[k].x+"px", top: currentPos[k].y+"px" },
-            { left: np.x+"px", top: np.y+"px" }
-          ],{ duration:ANIM_DUR, fill:'forwards' });
-          anim.onfinish = ()=>{
-            currentPos[k] = { ...np };
-            if(++done===total) res();
-          };
+      for (let i = 0; i < rowsToUse * colsToUse; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', onCellClick);
+        game.appendChild(cell);
+        cells.push({ element: cell, bomb: false, revealed: false, count: 0 });
+      }
+
+      while (bombsPlaced < bombCount) {
+        const index = Math.floor(Math.random() * cells.length);
+        if (!cells[index].bomb) {
+          cells[index].bomb = true;
+          bombsPlaced++;
         }
-      });
+      }
+
+      for (let i = 0; i < cells.length; i++) {
+        const neighbors = getNeighbors(i);
+        cells[i].count = neighbors.filter(n => cells[n].bomb).length;
+      }
     }
 
-    // 5) 楕円回転
-    let angle=0;
-    (function circ(){
-      const cx = innerWidth/2, cy=innerHeight/2;
-      cells.forEach((d,i)=>{
-        const a = (angle + i*(360/cells.length))*Math.PI/180;
-        const x = cx + CIRC_RX*Math.cos(a) - WIN_W/2;
-        const y = cy + CIRC_RY*Math.sin(a) - WIN_H/2;
-        d.style.left = x+"px";
-        d.style.top  = y+"px";
-      });
-      angle = (angle + CIRC_SPEED)%360;
-      requestAnimationFrame(circ);
-    })();
+    function getNeighbors(index) {
+      const neighbors = [];
+      const x = index % cols;
+      const y = Math.floor(index / cols);
 
-    // 6) マウス近接で拡大
-    document.addEventListener("mousemove",e=>{
-      cells.forEach(d=>{
-        const rect = d.getBoundingClientRect();
-        const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-        const dist = Math.hypot(e.clientX-cx, e.clientY-cy);
-        d.style.transform = dist<100 ? "scale(1.2)" : "scale(1)";
-      });
-    });
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx;
+          const ny = y + dy;
+          if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+            neighbors.push(ny * cols + nx);
+          }
+        }
+      }
 
-    // 7) クリック判定
-    cells.forEach((d,i)=>{
-      d.addEventListener("click",()=>{
-        if(i===target) alert("you win!");
-        else          alert("wrong key");
-      });
-    });
-  })();
+      return neighbors;
+    }
+
+    function onCellClick(e) {
+      const index = parseInt(e.target.dataset.index);
+      reveal(index);
+    }
+
+    function reveal(index) {
+      const cell = cells[index];
+      if (cell.revealed) return;
+
+      cell.revealed = true;
+      cell.element.classList.add('revealed');
+      if (cell.bomb) {
+        cell.element.classList.add('bomb');
+        cell.element.textContent = '💣';
+        alert('💥 ゲームオーバー！またチャレンジしてね');
+        revealAll();
+        return;
+      }
+
+      if (cell.count > 0) {
+        cell.element.textContent = cell.count;
+      } else {
+        const neighbors = getNeighbors(index);
+        neighbors.forEach(reveal);
+      }
+    }
+
+    function revealAll() {
+      for (const cell of cells) {
+        if (!cell.revealed) {
+          cell.revealed = true;
+          cell.element.classList.add('revealed');
+          if (cell.bomb) {
+            cell.element.classList.add('bomb');
+            cell.element.textContent = '💣';
+          } else if (cell.count > 0) {
+            cell.element.textContent = cell.count;
+          }
+        }
+      }
+    }
+
+    // 初期デバイス判定
+    checkDevice();
+    createGrid();
   </script>
 </body>
 </html>
